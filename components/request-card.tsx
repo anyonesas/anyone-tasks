@@ -1,10 +1,10 @@
 import Link from "next/link";
 import type { TaskRequest } from "@/lib/types";
 import { formatRelative, cn } from "@/lib/utils";
-import { paletteFor, STATUS_ACCENT } from "@/lib/colors";
+import { paletteForCriticality, STATUS_ACCENT } from "@/lib/colors";
 
 export function RequestCard({ req }: { req: TaskRequest }) {
-  const palette = paletteFor(req.project);
+  const palette = paletteForCriticality(req.criticality_score);
   const accent = STATUS_ACCENT[req.status];
   const submitter = req.submitted_by_name ?? req.submitted_by_email.split("@")[0];
 

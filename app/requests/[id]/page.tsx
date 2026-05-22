@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getRequest } from "@/lib/requests";
 import { Sidebar, MobileTopbar } from "@/components/sidebar";
 import { formatDateTime, cn } from "@/lib/utils";
-import { paletteFor, STATUS_ACCENT } from "@/lib/colors";
+import { paletteForCriticality, STATUS_ACCENT } from "@/lib/colors";
 import { TYPE_LABELS } from "@/lib/types";
 import { RespondForm } from "./respond-form";
 import { DigestBlock } from "./digest-block";
@@ -24,7 +24,7 @@ export default async function RequestDetailPage({
   ]);
   if (!req) notFound();
 
-  const palette = paletteFor(req.project);
+  const palette = paletteForCriticality(req.criticality_score);
   const accent = STATUS_ACCENT[req.status];
 
   return (

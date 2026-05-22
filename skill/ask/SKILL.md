@@ -5,7 +5,9 @@ description: Forward a feature/bug/question/info request to the lead dev (Anyone
 
 # /ask — envoyer une demande au dev principal
 
-Tu transformes une demande utilisateur (toi-même ou Théo) en une demande structurée envoyée au dev principal via le MCP `anyone-tasks`. Le dev reçoit un digest prêt à copier-coller dans sa propre session Claude.
+Tu transformes une demande utilisateur (Andrei ou Théo) en une demande structurée envoyée au dev principal (Vladimir) via le MCP `anyone-tasks`. Vladimir reçoit un digest prêt à copier-coller dans sa propre session Claude Code.
+
+**Objectif principal** : ton digest doit être **autosuffisant**. Vladimir (et son Claude) ne devraient JAMAIS avoir besoin de revenir vers l'utilisateur pour demander des précisions. Si tu peux explorer le repo, regarder du code, lire un fichier — fais-le AVANT d'envoyer la demande, pour enrichir le digest. C'est mieux de prendre 30 secondes de plus côté toi que de bloquer Vladimir.
 
 ## Outil MCP
 
@@ -14,22 +16,32 @@ L'outil s'appelle **`mcp__anyone-tasks__create_request`** (si le MCP est configu
 Si AUCUN tool MCP `create_request` n'est dispo, arrête-toi et dis à l'utilisateur :
 > Le MCP `anyone-tasks` n'est pas configuré. Ajoute-le à ton `.mcp.json` (voir README anyone-tasks).
 
-## Étape 1 — Comprendre la demande
+## Étape 1 — Scanne le contexte
 
-Lis tout le contexte de la conversation (messages précédents) ET le message d'invocation. Identifie :
+**Avant tout**, scanne la conversation en cours :
+- Quels fichiers ont été ouverts/édités/regardés ?
+- Quelles erreurs ou bugs ont été mentionnés ?
+- Quel est le projet courant (`process.cwd()`, mentions explicites, fichiers récents) ?
+- Y a-t-il eu des décisions, des choix, des contraintes mentionnés implicitement ?
 
-- **Projet concerné**. Exemples : `anyone-site`, `castingpass`, `paytrack`, `autoanyone`, `candidate-mini-app`, `creditanyone`, `selftapesfr`, etc. Si pas évident, demande.
+Cette extraction de contexte est la valeur principale du skill — sans elle, le digest est juste une copie du message utilisateur.
+
+Si la conversation est trop pauvre (utilisateur arrive avec juste `/ask faire X`) et que tu peux explorer le repo localement : fais 1-2 `Read` / `Grep` ciblés pour avoir des pistes concrètes à mettre dans le digest.
+
+## Étape 2 — Identifie
+
+- **Projet concerné**. Exemples connus : `anyone-site`, `castingpass`, `paytrack`, `autoanyone`, `candidate-mini-app`, `creditanyone`, `selftapesfr`, `anyone-tasks`. Déduis depuis le cwd, les fichiers récents, ou les mentions. Si vraiment pas évident, demande.
 - **Type** :
   - `feature` — nouvelle fonctionnalité ou évolution
-  - `bug` — quelque chose ne marche pas
+  - `bug` — quelque chose ne marche pas (inclus repro steps !)
   - `question` — besoin d'une réponse du dev (pas de modif code)
   - `info` — juste pour info / FYI
-- **Titre court** (max 10 mots).
-- **Demande exacte** — ce qui doit être fait, dans les mots de l'utilisateur (reformule pour clarté mais sans inventer).
-- **Contexte** — pourquoi, où dans le code, historique pertinent, captures/URLs déjà mentionnées.
-- **Fichiers/références** — captures d'écran, URLs, extraits de code mentionnés.
+- **Titre court** (max 10 mots, en français).
+- **Demande exacte** — reformule clairement, sans inventer ni romancer.
+- **Contexte** — pourquoi, lien avec d'autres décisions, historique pertinent.
+- **Fichiers/références** — captures, URLs, extraits de code mentionnés (avec leur path si tu l'as vu dans la conversation).
 
-## Étape 2 — Demander seulement si vraiment nécessaire
+## Étape 3 — Demander seulement si vraiment nécessaire
 
 Utilise `AskUserQuestion` UNIQUEMENT si :
 - Le projet est ambigu (plusieurs projets possibles, ou pas mentionné du tout)
@@ -38,7 +50,7 @@ Utilise `AskUserQuestion` UNIQUEMENT si :
 
 **Maximum 2 questions.** N'agresse pas l'utilisateur de questions — fais des hypothèses raisonnables et note-les dans le contexte avec une mention "À confirmer : ...".
 
-## Étape 3 — Scorer (1-5)
+## Étape 4 — Scorer (1-5)
 
 Calcule **complexity_score**, **criticality_score**, **urgency_score**. Donne aussi une raison courte pour chacun (une phrase).
 
@@ -65,7 +77,7 @@ Calcule **complexity_score**, **criticality_score**, **urgency_score**. Donne au
 
 Pour les types `question` et `info` : complexity 1 par défaut, urgency selon le ton.
 
-## Étape 4 — Garde-fous (`safety_notes`)
+## Étape 5 — Garde-fous (`safety_notes`)
 
 Liste ce que le dev (ou son Claude) ne doit PAS toucher / casser. Exemples :
 - "Ne pas modifier le flow de paiement Stripe."
@@ -75,44 +87,61 @@ Liste ce que le dev (ou son Claude) ne doit PAS toucher / casser. Exemples :
 
 Si rien de spécifique, laisse vide.
 
-## Étape 5 — Digest (à coller dans le Claude du dev)
+## Étape 6 — Digest (le truc le plus important)
 
-Le `digest` est le morceau le plus important. C'est un markdown auto-contenu que le dev colle dans une nouvelle session Claude. Il doit être complet sans contexte externe.
+Le `digest` est ce que Vladimir va coller direct dans une nouvelle session Claude. Si le digest est bon, Vladimir n'a qu'à dire à son Claude "fais ça" sans rien d'autre. Si le digest est mou, Vladimir doit revenir vers nous pour des précisions = friction = mauvais.
+
+**Règles du bon digest** :
+- Auto-contenu — Vladimir n'a pas besoin de remonter dans Telegram
+- Concret — pas "améliore le formulaire", mais "le champ email accepte des espaces, valide-le côté client avec le pattern X"
+- Pistes de fichiers réelles si tu as exploré — pas inventées
+- Critères d'acceptation testables — "le bouton change de couleur au hover" plutôt que "amélioration de l'UX"
+- Repro steps pour les bugs (URL exacte, étapes pour reproduire)
+- Toujours en français
 
 Format strict :
 
 ```
 # [PROJET] Titre
 
-**Type** · feature/bug/question/info  
-**Urgence** X/5 · **Criticité** X/5 · **Complexité** X/5  
+**Type** · feature/bug/question/info
+**Urgence** X/5 · **Criticité** X/5 · **Complexité** X/5
 **Demandé par** : <email>
 
 ## Demande
-<la demande exacte, claire>
+<la demande exacte, claire, en 2-4 phrases>
 
 ## Contexte
-<background utile : motivation, lien avec d'autres features, captures>
+<background utile : motivation, lien avec d'autres features, captures, décisions prises>
 
 ## Garde-fous
 - <ce qu'il ne faut PAS toucher>
 - <invariants à préserver>
 
 ## Pistes (où regarder)
-<si tu as une idée du fichier/zone>
+- `chemin/vers/fichier.tsx` — <pourquoi>
+- `autre/fichier.ts` — <pourquoi>
+<seulement si tu as des pistes concrètes ; sinon laisse vide>
+
+## Repro (pour les bugs)
+1. Aller sur <URL>
+2. Cliquer sur <X>
+3. Observer : <comportement actuel>
+4. Attendu : <comportement attendu>
 
 ## Critères d'acceptation
 - [ ] <résultat observable 1>
 - [ ] <résultat observable 2>
-- [ ] (si UI) Testé sur desktop + mobile
+- [ ] (si UI) Testé desktop + mobile
+- [ ] (si touche prod) Pas de régression sur <feature liée>
 
 ## Notes
 <tout le reste utile>
 ```
 
-Le digest doit être en français (le dev est francophone).
+Pour `question` / `info` : un format plus court (Demande + Contexte + ce qu'on attend comme réponse) suffit. Pas besoin de pistes ni critères d'acceptation.
 
-## Étape 6 — Appeler le MCP
+## Étape 7 — Appeler le MCP
 
 Appelle `mcp__anyone-tasks__create_request` avec :
 
@@ -135,7 +164,7 @@ Appelle `mcp__anyone-tasks__create_request` avec :
 }
 ```
 
-## Étape 7 — Confirmer brièvement
+## Étape 8 — Confirmer brièvement
 
 Affiche en 3-4 lignes max :
 ```
