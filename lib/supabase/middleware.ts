@@ -26,10 +26,6 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const url = request.nextUrl;
   const path = url.pathname;
 
@@ -40,15 +36,23 @@ export async function updateSession(request: NextRequest) {
     path.startsWith("/_next") ||
     path === "/favicon.ico";
 
-  if (!user && !isPublic) {
+  if (isPublic) return response;
+
+  // For redirects we only need to know if there's any signed-in session.
+  // getSession() reads from cookies (no network), getUser() would hit Supabase Auth on every page.
+  // Server components / API routes still call getUser() to validate the JWT for sensitive ops.
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
     const redirect = url.clone();
     redirect.pathname = "/login";
     redirect.searchParams.set("next", path);
     return NextResponse.redirect(redirect);
   }
 
-  if (user && !isAllowedEmail(user.email) && !isPublic) {
-    // Signed in but not on the allowlist — bounce to login with an error.
+  if (!isAllowedEmail(session.user.email)) {
     await supabase.auth.signOut();
     const redirect = url.clone();
     redirect.pathname = "/login";
