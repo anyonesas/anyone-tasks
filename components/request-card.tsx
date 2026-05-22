@@ -1,38 +1,76 @@
 import Link from "next/link";
 import type { TaskRequest } from "@/lib/types";
-import { StatusBadge, TypeBadge, ScoreBadge } from "@/components/badges";
-import { formatRelative } from "@/lib/utils";
+import { formatRelative, cn } from "@/lib/utils";
+import { paletteFor, STATUS_ACCENT } from "@/lib/colors";
 
 export function RequestCard({ req }: { req: TaskRequest }) {
+  const palette = paletteFor(req.project);
+  const accent = STATUS_ACCENT[req.status];
+  const submitter = req.submitted_by_name ?? req.submitted_by_email.split("@")[0];
+
   return (
     <Link
       href={`/requests/${req.id}`}
-      className="block bg-white border border-zinc-200 rounded-xl px-5 py-4 hover:border-zinc-300 hover:shadow-sm transition"
+      className={cn(
+        "group relative aspect-[5/4] flex flex-col rounded-3xl p-6 transition-all border",
+        palette.bg,
+        palette.border,
+        palette.hover,
+        "hover:-translate-y-1 hover:shadow-lg shadow-sm",
+      )}
     >
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 flex-wrap mb-1">
-            <span className="text-xs font-medium text-zinc-500 uppercase tracking-wide">
-              {req.project}
-            </span>
-            <TypeBadge type={req.type} />
-          </div>
-          <h3 className="font-medium text-zinc-900 truncate">{req.title}</h3>
-          <p className="text-sm text-zinc-500 mt-1 line-clamp-2">{req.request}</p>
-        </div>
-        <StatusBadge status={req.status} />
+      {/* Top: project chip + status dot */}
+      <div className="flex items-center justify-between mb-4">
+        <span className={cn("inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium", palette.chip)}>
+          {req.project}
+        </span>
+        <span
+          className={cn("w-2.5 h-2.5 rounded-full", accent.dot)}
+          title={accent.label}
+        />
       </div>
 
-      <div className="flex items-center justify-between mt-4 gap-3">
-        <div className="flex flex-wrap gap-1.5">
-          <ScoreBadge label="Urgence" score={req.urgency_score} />
-          <ScoreBadge label="Crit." score={req.criticality_score} />
-          <ScoreBadge label="Complexité" score={req.complexity_score} />
+      {/* Title */}
+      <h3 className="font-display text-xl font-semibold text-zinc-900 leading-tight tracking-tight line-clamp-3">
+        {req.title}
+      </h3>
+
+      {/* Preview */}
+      <p className="mt-2 text-sm text-zinc-800/70 line-clamp-2">{req.request}</p>
+
+      {/* Spacer */}
+      <div className="flex-1" />
+
+      {/* Bottom: scores + meta */}
+      <div className="flex items-end justify-between gap-2 mt-4">
+        <div className={cn("text-xs", palette.meta)}>
+          <div className="font-medium text-zinc-900/80">{submitter}</div>
+          <div>{formatRelative(req.created_at)}</div>
         </div>
-        <div className="text-xs text-zinc-400 whitespace-nowrap">
-          {req.submitted_by_name ?? req.submitted_by_email.split("@")[0]} · {formatRelative(req.created_at)}
+        <div className="flex gap-1">
+          {req.urgency_score !== null && (
+            <ScorePill label="U" score={req.urgency_score} />
+          )}
+          {req.criticality_score !== null && (
+            <ScorePill label="C" score={req.criticality_score} />
+          )}
+          {req.complexity_score !== null && (
+            <ScorePill label="X" score={req.complexity_score} />
+          )}
         </div>
       </div>
     </Link>
+  );
+}
+
+function ScorePill({ label, score }: { label: string; score: number }) {
+  return (
+    <span
+      className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-zinc-900/10 text-zinc-900"
+      title={`${label} = ${score}/5`}
+    >
+      {label}
+      {score}
+    </span>
   );
 }

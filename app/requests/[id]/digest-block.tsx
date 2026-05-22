@@ -12,14 +12,18 @@ export function DigestBlock({ digest }: { digest: string }) {
   }
 
   return (
-    <div className="relative bg-zinc-900 text-zinc-100 rounded-lg p-4 font-mono text-xs leading-relaxed">
-      <button
-        onClick={copy}
-        className="absolute top-2 right-2 text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-2.5 py-1 rounded transition"
-      >
-        {copied ? "✓ Copié" : "Copier"}
-      </button>
-      <pre className="whitespace-pre-wrap pr-20">{digest}</pre>
+    <div className="relative bg-zinc-900 text-zinc-100 rounded-2xl overflow-hidden">
+      <div className="absolute top-3 right-3 z-10">
+        <button
+          onClick={copy}
+          className="text-xs bg-white/10 hover:bg-white/20 text-zinc-100 px-3 py-1.5 rounded-lg backdrop-blur transition font-medium"
+        >
+          {copied ? "✓ Copié" : "Copier"}
+        </button>
+      </div>
+      <pre className="whitespace-pre-wrap p-5 pr-24 font-mono text-xs leading-relaxed overflow-x-auto">
+        {digest}
+      </pre>
     </div>
   );
 }

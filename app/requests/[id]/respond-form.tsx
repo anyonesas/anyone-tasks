@@ -4,7 +4,11 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { RequestStatus } from "@/lib/types";
 
-const STATUSES: { value: RequestStatus; label: string; tone: "primary" | "info" | "danger" }[] = [
+const STATUSES: {
+  value: RequestStatus;
+  label: string;
+  tone: "primary" | "info" | "danger";
+}[] = [
   { value: "completed", label: "Marquer traitée", tone: "primary" },
   { value: "info_provided", label: "Info fournie", tone: "info" },
   { value: "in_progress", label: "En cours", tone: "info" },
@@ -53,11 +57,11 @@ export function RespondForm({ id }: { id: string }) {
         value={response}
         onChange={(e) => setResponse(e.target.value)}
         rows={4}
-        placeholder="Réponse, info, ou commentaire pour clôturer la demande…"
-        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+        placeholder="Réponse, info, ou commentaire pour clôturer…"
+        className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:bg-white transition"
       />
       {error && (
-        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
           {error}
         </div>
       )}
@@ -69,7 +73,7 @@ export function RespondForm({ id }: { id: string }) {
             disabled={pending}
             onClick={() => submit(s.value)}
             className={
-              "px-3 py-1.5 text-sm font-medium rounded-lg transition disabled:opacity-50 " +
+              "px-4 py-2 text-sm font-medium rounded-full transition disabled:opacity-50 " +
               (s.tone === "primary"
                 ? "bg-zinc-900 text-white hover:bg-zinc-800"
                 : s.tone === "danger"

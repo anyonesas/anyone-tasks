@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useTransition } from "react";
 import { cn } from "@/lib/utils";
 
 const STATUS_FILTERS = [
@@ -14,16 +14,11 @@ const STATUS_FILTERS = [
   { value: "all", label: "Toutes" },
 ];
 
-const URGENCY_FILTERS = [
-  { value: "", label: "Toutes urgences" },
-  { value: "5", label: "Urgence ≥ 5" },
-  { value: "4", label: "Urgence ≥ 4" },
-  { value: "3", label: "Urgence ≥ 3" },
-];
-
 export function Filters({ projects }: { projects: string[] }) {
   const router = useRouter();
   const sp = useSearchParams();
+  const [pending, startTransition] = useTransition();
+
   const status = sp.get("status") ?? "open";
   const urgency = sp.get("urgency_min") ?? "";
   const project = sp.get("project") ?? "";
@@ -35,47 +30,50 @@ export function Filters({ projects }: { projects: string[] }) {
         if (v === undefined || v === "" || v === "all") params.delete(k);
         else params.set(k, v);
       }
-      router.push(`/?${params.toString()}`);
+      const q = params.toString();
+      startTransition(() => router.push(q ? `/?${q}` : "/"));
     },
     [router, sp],
   );
 
   return (
-    <div className="flex flex-wrap gap-3 items-center">
-      <div className="inline-flex rounded-lg border border-zinc-200 bg-white p-0.5">
-        {STATUS_FILTERS.map((f) => (
+    <div className={cn("flex flex-wrap gap-2 items-center", pending && "opacity-70")}>
+      {STATUS_FILTERS.map((f) => {
+        const active = status === f.value;
+        return (
           <button
             key={f.value}
             onClick={() => set({ status: f.value })}
             className={cn(
-              "px-3 py-1.5 text-xs font-medium rounded-md transition",
-              status === f.value
+              "px-4 py-2 rounded-full text-sm font-medium transition",
+              active
                 ? "bg-zinc-900 text-white"
-                : "text-zinc-600 hover:text-zinc-900",
+                : "bg-white text-zinc-700 hover:bg-zinc-100 border border-zinc-200/70",
             )}
           >
             {f.label}
           </button>
-        ))}
-      </div>
+        );
+      })}
+
+      <div className="w-px h-6 bg-zinc-200 mx-1" />
 
       <select
         value={urgency}
         onChange={(e) => set({ urgency_min: e.target.value || undefined })}
-        className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+        className="rounded-full bg-white border border-zinc-200/70 px-4 py-2 text-sm font-medium text-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-900"
       >
-        {URGENCY_FILTERS.map((u) => (
-          <option key={u.value} value={u.value}>
-            {u.label}
-          </option>
-        ))}
+        <option value="">Toutes urgences</option>
+        <option value="5">Urgence ≥ 5</option>
+        <option value="4">Urgence ≥ 4</option>
+        <option value="3">Urgence ≥ 3</option>
       </select>
 
       {projects.length > 0 && (
         <select
           value={project}
           onChange={(e) => set({ project: e.target.value || undefined })}
-          className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+          className="rounded-full bg-white border border-zinc-200/70 px-4 py-2 text-sm font-medium text-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-900"
         >
           <option value="">Tous projets</option>
           {projects.map((p) => (
