@@ -63,7 +63,7 @@ export default async function HomePage({
             </h1>
             <p className="mt-3 text-zinc-500">
               {requests.length === 0
-                ? "Aucune demande encore — utilise /demande dans Claude pour en envoyer."
+                ? "Aucune demande encore — utilise /ask dans Claude pour en envoyer."
                 : `${openCount} ouverte${openCount > 1 ? "s" : ""} · ${requests.length} au total dans cette vue`}
             </p>
           </header>
@@ -100,7 +100,7 @@ function EmptyState() {
         Rien à traiter ici
       </h2>
       <p className="text-sm text-zinc-500 mt-2 max-w-md mx-auto">
-        Quand quelqu&apos;un envoie une demande via <code className="font-mono text-xs px-1.5 py-0.5 bg-zinc-100 rounded">/demande</code> dans Claude,
+        Quand quelqu&apos;un envoie une demande via <code className="font-mono text-xs px-1.5 py-0.5 bg-zinc-100 rounded">/ask</code> dans Claude,
         elle apparaît sur cette page sous forme de carte colorée.
       </p>
     </div>

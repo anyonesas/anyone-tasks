@@ -6,8 +6,8 @@ Page web + MCP + skill Claude pour envoyer des demandes structurées au dev prin
 
 ```
 ┌─────────────────────┐                        ┌──────────────────────┐
-│ Toi / Théo (Claude) │ ── /demande ─────────► │  anyone-tasks (Next) │
-│   skill /demande    │                        │   Dashboard + MCP    │
+│ Toi / Théo (Claude) │ ── /ask ─────────► │  anyone-tasks (Next) │
+│   skill /ask    │                        │   Dashboard + MCP    │
 └─────────────────────┘                        │       Supabase       │
                                                └──────────────────────┘
                                                           ▲
@@ -21,7 +21,7 @@ Page web + MCP + skill Claude pour envoyer des demandes structurées au dev prin
 - **Frontend / API / MCP** : Next.js 15 (App Router), déployé sur Vercel.
 - **DB / Auth** : Supabase (magic link email).
 - **MCP** : endpoint HTTP stateless à `/api/mcp` avec Bearer token.
-- **Skill** : `/demande` — gathered context, ask if missing, score, write digest, call MCP.
+- **Skill** : `/ask` — gathered context, ask if missing, score, write digest, call MCP.
 
 ## Stack
 
@@ -113,17 +113,19 @@ Vérifie en lançant Claude Code : `/mcp` devrait lister `anyone-tasks` avec les
 
 ---
 
-## Installer le skill `/demande`
+## Installer le skill `/ask`
 
-Le dossier `skill/demande/` est le skill à installer chez chaque utilisateur.
+Le dossier `skill/ask/` est le skill à installer chez chaque utilisateur.
+
+(Note : le skill expose le slash-command `/ask`. Si tu veux le renommer, change le champ `name:` dans `SKILL.md` ET le nom du dossier.)
 
 ```bash
 # Sur la machine de chaque utilisateur :
 mkdir -p ~/.claude/skills
-cp -r /chemin/vers/anyone-tasks/skill/demande ~/.claude/skills/
+cp -r /chemin/vers/anyone-tasks/skill/ask ~/.claude/skills/
 ```
 
-Vérifie en lançant Claude Code : tape `/demande` — le skill doit apparaître.
+Vérifie en lançant Claude Code : tape `/ask` — le skill doit apparaître.
 
 ---
 
@@ -134,7 +136,7 @@ Vérifie en lançant Claude Code : tape `/demande` — le skill doit apparaître
 Depuis n'importe quelle session Claude Code, dans n'importe quel projet :
 
 ```
-/demande est-ce que tu peux modifier l'annonce voix sur l'iPad dans candidate-mini-app ?
+/ask est-ce que tu peux modifier l'annonce voix sur l'iPad dans candidate-mini-app ?
 ```
 
 Le skill :
@@ -196,7 +198,7 @@ anyone-tasks/
 │  ├─ utils.ts
 │  └─ env.ts                            # env helpers + allowlist
 ├─ supabase/migrations/0001_init.sql    # schema
-├─ skill/demande/SKILL.md               # Claude skill
+├─ skill/ask/SKILL.md                   # Claude skill — `/ask` slash command
 └─ middleware.ts                        # auth gate
 ```
 
@@ -214,4 +216,4 @@ anyone-tasks/
 
 - Les tokens peuvent être révoqués depuis `/admin/tokens` sans casser les autres.
 - Les filtres du dashboard sont dans l'URL → partageables.
-- Le skill `/demande` ne dépend du nom MCP que par convention (`anyone-tasks`). Si tu le renommes côté `.mcp.json`, ajuste le SKILL.md.
+- Le skill `/ask` ne dépend du nom MCP que par convention (`anyone-tasks`). Si tu le renommes côté `.mcp.json`, ajuste le SKILL.md.

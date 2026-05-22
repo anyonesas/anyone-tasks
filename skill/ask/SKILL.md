@@ -1,9 +1,9 @@
 ---
-name: demande
-description: Forward a feature/bug/question/info request to the lead dev (Anyone's main developer) via the anyone-tasks MCP. Trigger when the user wants to send a dev request, types `/demande`, says "envoie ça à mon frère", "fais une demande à dev", "envoie au dev", "request to dev", or similar. Scores complexity/criticality/urgency and writes a digest the dev can paste straight into their Claude session.
+name: ask
+description: Forward a feature/bug/question/info request to the lead dev (Anyone's main developer) via the anyone-tasks MCP. Trigger when the user types `/ask`, says "envoie ça au dev", "fais une demande au dev", "ask the dev", "envoie ça à mon frère", or any phrasing about forwarding a request/question to the lead developer. Scores complexity/criticality/urgency and writes a digest the dev can paste straight into their Claude session.
 ---
 
-# /demande — envoyer une demande au dev principal
+# /ask — envoyer une demande au dev principal
 
 Tu transformes une demande utilisateur (toi-même ou Théo) en une demande structurée envoyée au dev principal via le MCP `anyone-tasks`. Le dev reçoit un digest prêt à copier-coller dans sa propre session Claude.
 
