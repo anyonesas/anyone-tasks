@@ -41,14 +41,48 @@ Si la conversation est trop pauvre (utilisateur arrive avec juste `/ask faire X`
 - **Contexte** — pourquoi, lien avec d'autres décisions, historique pertinent.
 - **Fichiers/références** — captures, URLs, extraits de code mentionnés (avec leur path si tu l'as vu dans la conversation).
 
-## Étape 3 — Demander seulement si vraiment nécessaire
+## Étape 3 — Interview avec `AskUserQuestion` (obligatoire)
 
-Utilise `AskUserQuestion` UNIQUEMENT si :
-- Le projet est ambigu (plusieurs projets possibles, ou pas mentionné du tout)
-- La demande est vague au point que le dev ne pourrait pas démarrer (ex : "améliore le truc")
-- Il manque une contrainte critique que l'utilisateur a probablement en tête (ex : "casse pas X")
+**Tu DOIS poser des questions avec `AskUserQuestion`** (le popup avec boutons cliquables) pour affiner la demande. Mieux vaut 3-5 questions ciblées maintenant qu'un digest mou qui bloque Vladimir pendant 2h.
 
-**Maximum 2 questions.** N'agresse pas l'utilisateur de questions — fais des hypothèses raisonnables et note-les dans le contexte avec une mention "À confirmer : ...".
+**Combien :** 2 à 4 questions, en un seul `AskUserQuestion` (multi-questions dans le même appel). Pas une par une — groupe-les.
+
+**Ne saute cette étape QUE SI** la conversation contient déjà des réponses explicites et détaillées sur les 4 axes ci-dessous. En cas de doute, demande.
+
+### Questions à choisir parmi ces axes (pioche selon le contexte)
+
+**Axe 1 — Périmètre / projet (si pas clair)**
+- "Quel projet exactement ?" — options : `anyone-site`, `castingpass`, `paytrack`, `autoanyone`, `candidate-mini-app`, `creditanyone`, `selftapesfr`, `anyone-tasks`, `testerparfum`, autres
+- "Quelle page / quel écran précisément ?" — options dérivées du projet
+- "Cette modif touche : Front uniquement / Back uniquement / Les deux / Pas sûr"
+
+**Axe 2 — Comportement attendu (pour `feature` ou `bug`)**
+- "Quel résultat visible tu veux après la modif ?" — options spécifiques au cas
+- "Le comportement actuel : c'est cassé / c'est OK mais pas terrible / ça n'existe pas encore"
+- "C'est sur quel device : Desktop / Mobile / iPad / Tous"
+- "Tu as un mockup ou une référence visuelle ?" — options : capture jointe / lien Figma / non, à imaginer
+
+**Axe 3 — Garde-fous (presque toujours utile)**
+- "Y a-t-il quelque chose à NE PAS toucher ?" — options proposées en fonction du projet (ex : "Flow paiement Stripe", "Auth Supabase", "SEO meta tags", "Header global", "Rien de spécifique")
+- "Doit-on préserver la compatibilité avec... ?" — selon le cas
+
+**Axe 4 — Urgence + acceptation**
+- "C'est urgent à quel point ?" — options : "Casse la prod" / "Bloquant cette semaine" / "Cette semaine si possible" / "Quand tu peux"
+- "Comment tu sauras que c'est fait ?" — options : "Je teste moi-même" / "Vladimir m'envoie un screenshot" / "Auto-déployé je verrai" / "Réponse écrite suffit"
+
+**Axe 5 — Pour `bug` uniquement (repro)**
+- "Sur quelle URL exactement ?" — options ou texte
+- "Comment reproduire ? Étapes ?" — texte libre
+- "Toujours / Parfois / Une seule fois ?"
+
+**Axe 6 — Pour `question` / `info` uniquement**
+- "Tu veux quoi en retour ?" — options : "Réponse courte oui/non" / "Explication détaillée" / "Un avis tech / archi" / "Estimation effort"
+
+### Règles
+- Toujours en français.
+- Toujours fournir des options concrètes (pas de questions ouvertes type "raconte-moi plus") — utilise les boutons.
+- L'option "Autre" est automatique côté `AskUserQuestion`, ne la mets pas toi-même.
+- Si l'utilisateur a déjà répondu à une question dans la conv, ne la repose pas.
 
 ## Étape 4 — Scorer (1-5)
 
